@@ -1,9 +1,8 @@
-import { EmbedBuilder, SlashCommandBuilder } from 'discord.js'
+import { EmbedBuilder, Events, SlashCommandBuilder } from 'discord.js'
 import { Command } from '../../typing/commands.ts'
 import { query, transaction } from '../../db.ts'
 import { combination, groupBy, zip } from '../../utils/functions.ts'
-import format from 'pg-format'
-import { inspect } from 'util'
+import { EventsWithListener } from '../../typing/events.ts'
 
 export default new Command({
     data: new SlashCommandBuilder()
@@ -252,3 +251,43 @@ export default new Command({
         subcommand in subfunctions && await subfunctions[subcommand]()
     }
 })
+
+export const events = [
+    new EventsWithListener(
+        Events.MessageCreate,
+        async (client, message) => {
+            if (message.author.id == client.user?.id) {
+                return
+            }
+
+            const linkRegex = /((?:(?:https?|ftp):\/\/)[\w/\-?=%.]+\.[\w/\-&?=%.]+)/g
+
+            const filteredMessage = message.content.replace(linkRegex, '').toLowerCase().replace('\\|', '|')
+
+            const { rows } = await query<{keyword: string, reply: string}>(`
+                SELECT k.content AS keyword, r.content AS reply FROM responses
+                LEFT JOIN response_keywords AS k ON responses.keyword_id = k.keyword_id
+                LEFT JOIN response_replys AS r ON responses.reply_id = r.reply_id
+            `)
+
+            const responseList = groupBy(
+                rows,
+                ({keyword}) => keyword
+            ).map(x => ({keyword: x[0].keyword, replys: x.map(({reply})=>reply)}))
+
+            const replyList: [number, string][] = []
+            for (const {keyword, replys} of responseList) {
+                const regexp = new RegExp(keyword, 'g')
+                let match: RegExpExecArray | null
+                while ((match = regexp.exec(filteredMessage)) !== null) {
+                    replyList.push([match.index, replys[Math.floor(Math.random()*replys.length)]])
+                }
+            }
+            const replyMsg = replyList.toSorted(([,a], [,b]) => b.length - a.length).toSorted(([a], [b]) => a - b).map(([, reply]) => reply).join('\n')
+
+            if (replyMsg) {
+                message.reply(replyMsg)
+            }
+        }
+    )
+]
