@@ -1,5 +1,5 @@
 import { transaction } from '../../db.ts'
-import { uniqueCombinations } from "../../utils/iterate.ts"
+import { uniqueCombinations } from '../../utils/iterate.ts'
 import { SubCommand } from '../../type/commands.ts'
 
 export default SubCommand(
@@ -28,10 +28,10 @@ export default SubCommand(
         const seperator = ctx.options.getString('seperator') ?? '|'
         const keywords  = ctx.options.getString('keywords', true).split(seperator).map(x => x.toLowerCase().trim())
         const replys    = ctx.options.getString('replys', true).split(seperator).map(x => x.toLowerCase().trim())
-        await ctx.deferReply({ephemeral: true});
+        await ctx.deferReply({ephemeral: true})
 
         if (keywords.length == 0 || replys.length == 0) {
-            await ctx.editReply({content: 'There must be at least one keyword/reply in the argrements'});
+            await ctx.editReply({content: 'There must be at least one keyword/reply in the argrements'})
         }
 
         await transaction(async (query) => {
@@ -82,6 +82,6 @@ export default SubCommand(
             await Promise.all(bulkInsertPromises)
         })
 
-        await ctx.editReply({content: 'Responses has been added!'});
+        await ctx.editReply({content: 'Responses has been added!'})
     }
 )

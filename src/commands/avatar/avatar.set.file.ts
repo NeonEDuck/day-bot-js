@@ -1,4 +1,4 @@
-import { SubCommand } from "../../type/commands";
+import { SubCommand } from '../../type/commands'
 
 export default SubCommand(
     sub =>
@@ -16,11 +16,11 @@ export default SubCommand(
         await ctx.deferReply({ephemeral: true})
 
         if (file == null) {
-            await ctx.editReply({content: 'You must provide at least one option!'});
+            await ctx.editReply({content: 'You must provide at least one option!'})
             return
         }
         await client.user?.setAvatar(file?.url)
 
-        await ctx.editReply({content: 'Avatar set!'});
+        await ctx.editReply({content: 'Avatar set!'})
     }
 )

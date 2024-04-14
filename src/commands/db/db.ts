@@ -1,6 +1,6 @@
-import { SlashCommandBuilder } from 'discord.js';
-import { query } from '../../db.ts';
-import { Command, CommandListener } from '../../type/commands.ts';
+import { SlashCommandBuilder } from 'discord.js'
+import { query } from '../../db.ts'
+import { Command, CommandListener } from '../../type/commands.ts'
 
 await query(`CREATE TABLE IF NOT EXISTS accounts (
     user_id serial PRIMARY KEY,
@@ -56,7 +56,7 @@ export default Command({
                         text = `Fail to add ${username}`
                         console.log(err)
                     })
-                await ctx.reply({content: text, ephemeral: true});
+                await ctx.reply({content: text, ephemeral: true})
             },
             'select': async () => {
                 const username = ctx.options.getString('username', true)
@@ -74,7 +74,7 @@ export default Command({
                         text = `Fail to select ${username}`
                         console.log(err)
                     })
-                await ctx.reply({content: text, ephemeral: true});
+                await ctx.reply({content: text, ephemeral: true})
             },
         }
         await subfunctions[subcommand]?.(ctx, client)

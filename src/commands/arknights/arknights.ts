@@ -6,7 +6,7 @@ import { AttachmentBuilder, Events, SlashCommandBuilder } from 'discord.js'
 import { Command, CommandListener } from '../../type/commands.ts'
 import { EventsWithListener } from '../../type/events.ts'
 import { booleanXOR, proximatelyEqual, stringProximatelyEqual } from '../../utils/functions.ts'
-import { combinations } from "../../utils/iterate.ts"
+import { combinations } from '../../utils/iterate.ts'
 import scRecrument from './arknights.recrument.ts'
 
 
@@ -42,7 +42,7 @@ export const events = [
                     }
                     else if (result.buffer) {
                         const attachment = new AttachmentBuilder(result.buffer, {name: 'out.png'})
-                        await message.reply({content: `*"${result.tags.join(', ')}"* 可以這樣組合：`, files: [attachment]});
+                        await message.reply({content: `*"${result.tags.join(', ')}"* 可以這樣組合：`, files: [attachment]})
                     }
                     else if (result.tags.length >= 3) {
                         await message.reply({content: `*"${result.tags.join(', ')}"* 組合毫無特色`})
@@ -61,22 +61,22 @@ const ERROR = 3
 const COLUMN_COUNT = 20
 const MAX_RETRY_COUNT = 5
 const t2s = new opencc.OpenCC('t2s.json')
-const scheduler = createScheduler();
+const scheduler = createScheduler()
 scheduler.addWorker(await createWorker('chi_tra'))
 scheduler.addWorker(await createWorker('chi_tra'))
 
 function addText(text: string, width: number) {
-    const height = 30;
+    const height = 30
 
     const svgText = `
     <svg width="${width}" height="${height}">
         <style>
-            .title { font-size: 20px; font-family: "Noto Sans TC", "sans-serif" }
+            .title { font-size: 20px font-family: "Noto Sans TC", "sans-serif" }
         </style>
         <text x="0%" y="80%" class="title">${text}</text>
     </svg>`
 
-    return Buffer.from(svgText);
+    return Buffer.from(svgText)
 }
 
 function cal(data: {comb: {}[], ops: {rarity: number}[]}) {
@@ -246,7 +246,7 @@ export const getRecruitmentRecommendation = async (url: string): Promise<{tags:s
 
     const BufferRecord: Record<string, Buffer> = {}
 
-    // for (let i = 0; i < list.length; i++) {
+    // for (let i = 0 i < list.length i++) {
     const combImages = await Promise.all(list.map(async ({comb, ops}, i) => {
         const modOps = Object.assign(ops, {startedRow: list.slice(0, i).map(({ops}) => Math.ceil(ops.length / COLUMN_COUNT)).reduce((acc, cur) => acc+cur, 0)})
         const images = await Promise.all(modOps.map(async (op, j) => {
@@ -296,10 +296,10 @@ export const getRecruitmentRecommendation = async (url: string): Promise<{tags:s
 
 
 const existTags = [
-    "近衛幹員", "狙擊幹員", "重裝幹員",     "醫療幹員", "輔助幹員", "術師幹員", "特種幹員", "先鋒幹員",
-    "近戰位",   "遠程位",   "高級資深幹員", "控場",     "爆發",     "資深幹員", "治療",     "支援",
-    "新手",     "費用回覆", "輸出",         "生存",     "群攻",     "防護",     "減速",     "削弱",
-    "快速復活", "位移",     "召喚",         "支援機械", "男性幹員", "女性幹員",
+    '近衛幹員', '狙擊幹員', '重裝幹員',     '醫療幹員', '輔助幹員', '術師幹員', '特種幹員', '先鋒幹員',
+    '近戰位',   '遠程位',   '高級資深幹員', '控場',     '爆發',     '資深幹員', '治療',     '支援',
+    '新手',     '費用回覆', '輸出',         '生存',     '群攻',     '防護',     '減速',     '削弱',
+    '快速復活', '位移',     '召喚',         '支援機械', '男性幹員', '女性幹員',
 ]
 const html = await (await fetch('https://wiki.biligame.com/arknights/公开招募工具')).text()
 const existTWOperators = [

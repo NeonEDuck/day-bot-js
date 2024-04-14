@@ -61,6 +61,6 @@ export default SubCommand(
             }
         })
 
-        await ctx.editReply({content: 'remove!'});
+        await ctx.editReply({content: 'remove!'})
     }
 )

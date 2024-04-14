@@ -1,7 +1,7 @@
 import { Events, SlashCommandBuilder } from 'discord.js'
 import { Command, CommandListener } from '../../type/commands.ts'
 import { query, transaction } from '../../db.ts'
-import { groupBy } from "../../utils/iterate.ts"
+import { groupBy } from '../../utils/iterate.ts'
 import { EventsWithListener } from '../../type/events.ts'
 import scAdd from './response.add.ts'
 import scRemove from './response.remove.ts'

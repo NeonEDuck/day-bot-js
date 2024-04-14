@@ -1,4 +1,4 @@
-import { inspect } from "util"
+import { inspect } from 'util'
 
 export const booleanXOR = (a: boolean, b: boolean) => (a||b)&&!(a&&b)
 export const proximatelyEqual = (x: number, y: number, error: number) => {

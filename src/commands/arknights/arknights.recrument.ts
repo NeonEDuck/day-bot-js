@@ -23,7 +23,7 @@ export default SubCommand(
         }
         else if (result.buffer) {
             const attachment = new AttachmentBuilder(result.buffer, {name: 'out.png'})
-            await ctx.editReply({content: `*"${result.tags.join(', ')}"* 可以這樣組合：`, files: [attachment]});
+            await ctx.editReply({content: `*"${result.tags.join(', ')}"* 可以這樣組合：`, files: [attachment]})
         }
         else {
             await ctx.editReply({content: `*"${result.tags.join(', ')}"* 組合毫無特色`})

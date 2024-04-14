@@ -1,5 +1,5 @@
 import { query } from '../../db.ts'
-import { groupBy } from "../../utils/iterate.ts"
+import { groupBy } from '../../utils/iterate.ts'
 import { SubCommand } from '../../type/commands.ts'
 import { EmbedBuilder } from 'discord.js'
 

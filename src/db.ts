@@ -3,15 +3,15 @@ import pg from 'pg'
 
 type QueryType<T = {}> = <U extends T & pg.QueryResultRow>(sql: string, ...values: any[]) => Promise<pg.QueryResult<U>>
 
-const ssl = ['true', '1', 't'].includes((process.env?.DATABASE_SSL || 'false').toLowerCase());
+const ssl = ['true', '1', 't'].includes((process.env?.DATABASE_SSL || 'false').toLowerCase())
 
-// process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0;
+// process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0
 
 export const query: QueryType = <T extends pg.QueryResultRow>(sql: string, ...values: any[]) => {
     return new Promise<pg.QueryResult<T>>((resolve, reject) => {
         const client = new pg.Client({
             connectionString: process.env.DATABASE_URL!,
-            ssl
+            ssl,
         })
         client.connect()
 
@@ -52,10 +52,10 @@ export const transaction = <T extends pg.QueryResultRow>(f: (query: QueryType<T>
             resolve(result)
         }
         catch (err) {
-            reject(err);
+            reject(err)
         }
         finally {
-            client.end();
+            client.end()
         }
     })
 }

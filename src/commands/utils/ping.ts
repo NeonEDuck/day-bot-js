@@ -6,6 +6,6 @@ export default Command({
         .setName('ping')
         .setDescription('Replies with Pong!'),
     listener: async (ctx) => {
-        await ctx.reply('Pong!');
+        await ctx.reply('Pong!')
     }
 })
