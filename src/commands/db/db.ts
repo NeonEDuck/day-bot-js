@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from 'discord.js';
 import { query } from '../../db.ts';
-import { Command } from '../../typing/commands.ts';
+import { Command, CommandListener } from '../../type/commands.ts';
 
 await query(`CREATE TABLE IF NOT EXISTS accounts (
     user_id serial PRIMARY KEY,
@@ -9,11 +9,11 @@ await query(`CREATE TABLE IF NOT EXISTS accounts (
     email VARCHAR ( 255 ) UNIQUE NOT NULL,
     last_login TIMESTAMP
 );`).then(() => {
-    console.log('susccess')
+    // console.log('susccess')
 })
 
-export default new Command({
-    data: new SlashCommandBuilder()
+export default Command({
+    builder: new SlashCommandBuilder()
         .setName('db')
         .setDescription('?')
         .addSubcommand(sub =>
@@ -40,9 +40,9 @@ export default new Command({
                         .setDescription('The keywords you want to remove. (Separate the words with "|")')
                         .setRequired(true))
         ),
-    run: async (ctx) => {
+    listener: async (ctx, client) => {
         const subcommand = ctx.options.getSubcommand()
-        const subfunctions: {[key: string]: () => Promise<void>} = {
+        const subfunctions: Record<string, CommandListener> = {
             'add': async () => {
                 const username = ctx.options.getString('username', true)
                 const password = ctx.options.getString('password', true)
@@ -77,6 +77,6 @@ export default new Command({
                 await ctx.reply({content: text, ephemeral: true});
             },
         }
-        subcommand in subfunctions && await subfunctions[subcommand]()
+        await subfunctions[subcommand]?.(ctx, client)
     }
 })

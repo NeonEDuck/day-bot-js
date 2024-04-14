@@ -2,7 +2,58 @@ import sharp from 'sharp'
 import opencc from 'opencc'
 import CryptoJS from 'crypto-js'
 import { createScheduler, createWorker } from 'tesseract.js'
-import { booleanXOR, combinations, proximatelyEqual, stringProximatelyEqual } from './utils/functions.ts'
+import { AttachmentBuilder, Events, SlashCommandBuilder } from 'discord.js'
+import { Command, CommandListener } from '../../type/commands.ts'
+import { EventsWithListener } from '../../type/events.ts'
+import { booleanXOR, proximatelyEqual, stringProximatelyEqual } from '../../utils/functions.ts'
+import { combinations } from "../../utils/iterate.ts"
+import scRecrument from './arknights.recrument.ts'
+
+
+export default Command(
+    new SlashCommandBuilder()
+        .setName('arknights')
+        .setDescription('?')
+        .addSubcommand(scRecrument.builder),
+    async (ctx, client) => {
+        const subcommand = ctx.options.getSubcommand()
+        const subListeners: Record<string, CommandListener> = {
+            'recruitment': scRecrument.listener
+        }
+        await subListeners[subcommand]?.(ctx, client)
+    }
+)
+
+export const events = [
+    EventsWithListener(
+        Events.MessageCreate,
+        async (client, message) => {
+            if (message.author.id == client.user?.id) {
+                return
+            }
+
+            if (message.attachments.size > 0) {
+                message.attachments.each(async (attachment) => {
+                    if (!attachment.url.match(/png|jpe?g$/)) return
+
+                    const result = await getRecruitmentRecommendation(attachment.url)
+                    if (result == null) {
+                        return
+                    }
+                    else if (result.buffer) {
+                        const attachment = new AttachmentBuilder(result.buffer, {name: 'out.png'})
+                        await message.reply({content: `*"${result.tags.join(', ')}"* 可以這樣組合：`, files: [attachment]});
+                    }
+                    else if (result.tags.length >= 3) {
+                        await message.reply({content: `*"${result.tags.join(', ')}"* 組合毫無特色`})
+                    }
+                })
+            }
+        }
+    )
+]
+
+
 
 const MIN_CHECK_DISTANT = 4
 const MAX_CHECK_DISTANT = 8
@@ -193,6 +244,8 @@ export const getRecruitmentRecommendation = async (url: string): Promise<{tags:s
     })
     .png().toBuffer()
 
+    const BufferRecord: Record<string, Buffer> = {}
+
     // for (let i = 0; i < list.length; i++) {
     const combImages = await Promise.all(list.map(async ({comb, ops}, i) => {
         const modOps = Object.assign(ops, {startedRow: list.slice(0, i).map(({ops}) => Math.ceil(ops.length / COLUMN_COUNT)).reduce((acc, cur) => acc+cur, 0)})
@@ -210,7 +263,18 @@ export const getRecruitmentRecommendation = async (url: string): Promise<{tags:s
                     }
                 }
             })() || addText(op.name, 90)
-            const opImageResizeBuffer = await sharp(opImageBuffer).resize(90, 90).toBuffer()
+            let opImageResizeBuffer
+            try {
+                if (BufferRecord[op.name]) {
+
+                }
+                opImageResizeBuffer = await sharp(opImageBuffer).resize(90, 90).toBuffer()
+            } catch (error) {
+                opImageResizeBuffer = addText(op.name, 90)
+                console.error(error)
+                console.error(opImageName)
+                console.error(opImageUrl)
+            }
             return {input: opImageResizeBuffer, left: (j % COLUMN_COUNT)*90, top: (Math.floor(j / COLUMN_COUNT)+modOps.startedRow)*90+(i+1)*30}
             // return await sharp(output).composite([
             //     {input: opImage, left: (j % COLUMN_COUNT)*90, top: (Math.floor(j / COLUMN_COUNT)+modOps.startedRow)*90}
@@ -231,14 +295,14 @@ export const getRecruitmentRecommendation = async (url: string): Promise<{tags:s
 }
 
 
-export const existTags = [
+const existTags = [
     "近衛幹員", "狙擊幹員", "重裝幹員",     "醫療幹員", "輔助幹員", "術師幹員", "特種幹員", "先鋒幹員",
     "近戰位",   "遠程位",   "高級資深幹員", "控場",     "爆發",     "資深幹員", "治療",     "支援",
     "新手",     "費用回覆", "輸出",         "生存",     "群攻",     "防護",     "減速",     "削弱",
     "快速復活", "位移",     "召喚",         "支援機械", "男性幹員", "女性幹員",
 ]
 const html = await (await fetch('https://wiki.biligame.com/arknights/公开招募工具')).text()
-export const existTWOperators = [
+const existTWOperators = [
     {name: 'Lancet-2',      special: true},
     {name: 'Castle-3',      special: true},
     {name: 'THRM-EX',       special: true},
@@ -299,7 +363,7 @@ export const existTWOperators = [
     {name: '宴',            special: false},
     {name: '刻刀',          special: false},
     {name: '波登可',        special: false},
-    // {name: '卡达',          special: false},
+    {name: '卡达',          special: false},
     // {name: '孑',            special: false},
     // {name: '酸糖',          special: false},
     // {name: '芳汀',          special: false},
@@ -343,7 +407,7 @@ export const existTWOperators = [
     {name: '石棉',          special: false},
     {name: '月禾',          special: false},
     {name: '莱恩哈特',      special: false},
-    // {name: '断崖',          special: false},
+    {name: '断崖',          special: false},
     // {name: '安哲拉',        special: false},
     // {name: '贾维',          special: false},
     // {name: '蜜蜡',          special: false},
@@ -369,7 +433,7 @@ export const existTWOperators = [
     {name: '傀影',          special: false},
     {name: '温蒂',          special: false},
     {name: '早露',          special: false},
-    // {name: '铃兰',          special: false},
+    {name: '铃兰',          special: false},
     // {name: '棘刺',          special: false},
     // {name: '森蚺',          special: false},
 ].map((op) => {

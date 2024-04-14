@@ -1,11 +1,11 @@
 import { SlashCommandBuilder } from 'discord.js'
-import { Command } from '../../typing/commands.ts'
+import { Command } from '../../type/commands.ts'
 
-export default new Command({
-    data: new SlashCommandBuilder()
+export default Command({
+    builder: new SlashCommandBuilder()
         .setName('ping')
         .setDescription('Replies with Pong!'),
-    run: async (ctx) => {
+    listener: async (ctx) => {
         await ctx.reply('Pong!');
     }
 })

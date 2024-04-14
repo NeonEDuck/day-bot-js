@@ -1,7 +1,7 @@
 
 import { Client, Events, GatewayIntentBits } from 'discord.js'
 import collections from './commands.ts'
-import { ValidationError } from './utils/classes.ts';
+import { ValidationError } from './type/errors.ts';
 
 const client = new Client({
     intents: [
@@ -12,7 +12,7 @@ const client = new Client({
 });
 
 collections.events.map((e) => {
-    client.on(e.event, (...args) => {
+    client.on(e.eventType, (...args) => {
         e.listener(client, ...args)
     });
 });
@@ -34,8 +34,9 @@ client.on(Events.InteractionCreate, async interaction => {
     }
 
     try {
-        await command.run(interaction, client)
-    } catch (error) {
+        await command.listener(interaction, client)
+    }
+    catch (error) {
         if (!(error instanceof ValidationError)) {
             console.error(error);
         }
